@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --accent: #6366F1; --accent2: #818CF8; --accent-bg: rgba(99,102,241,0.08);
+    --surface: #ffffff; --bg: #F1F5F9; --border: #E2E8F0;
+    --text: #0F172A; --text-muted: #64748B;
+    --font: 'Inter', sans-serif; --radius: 12px;
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.13); --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); color: var(--text); background: var(--bg); min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+  .hidden { display: none !important; }
+
+  .school-header { background: var(--accent); color: #fff; position: relative; overflow: hidden; }
+  .school-header::after { content:''; position:absolute; bottom:-40px; left:-10%; width:120%; height:80px; background:var(--bg); border-radius:50%; }
+  .school-header-inner { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.5rem 2.25rem; position: relative; z-index: 1; display: flex; align-items: center; gap: 1rem; }
+  .school-logo { width: 42px; height: 42px; background: rgba(255,255,255,0.2); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: #fff; flex-shrink: 0; }
+  .school-info { flex: 1; }
+  .school-info .name { font-weight: 800; font-size: 1.05rem; }
+  .school-info .sub  { font-size: 0.78rem; opacity: 0.82; }
+  .student-pill { background: rgba(255,255,255,0.18); border-radius: 30px; padding: 6px 14px 6px 6px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background 0.15s; }
+  .student-pill:hover { background: rgba(255,255,255,0.28); }
+  .student-pill .av { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+  .student-pill .nm { font-size: 0.82rem; font-weight: 600; }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+  .welcome { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .welcome-sub { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem; }
+
+  .section-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.85rem; }
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 1.1rem; margin-bottom: 2rem; }
+  .course-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; transition: box-shadow 0.2s; display: flex; flex-direction: column; }
+  .course-card:hover { box-shadow: var(--shadow-lg); }
+  .course-stripe { height: 5px; }
+  .course-body { padding: 1.25rem 1.4rem; flex: 1; }
+  .course-title { font-weight: 700; font-size: 0.97rem; margin-bottom: 0.4rem; line-height: 1.4; }
+  .course-desc  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.75rem; }
+  .course-meta  { font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 0.75rem; }
+  .course-footer { padding: 0 1.4rem 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+  .btn-enter { display: block; width: 100%; padding: 9px; border-radius: 8px; font-family: var(--font); font-size: 0.84rem; font-weight: 600; color: #fff; border: none; cursor: pointer; text-align: center; text-decoration: none; transition: opacity 0.15s; }
+  .btn-enter:hover { opacity: 0.88; }
+  .btn-link  { display: block; width: 100%; padding: 7px; border: 1.5px solid var(--border); border-radius: 8px; font-family: var(--font); font-size: 0.8rem; font-weight: 500; color: var(--text-muted); background: transparent; cursor: pointer; text-align: center; text-decoration: none; transition: all 0.15s; }
+  .btn-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  .quick-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 0.75rem; margin-bottom: 2rem; }
+  .quick-card  { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow-sm); padding: 1rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; border: 1.5px solid var(--border); cursor: pointer; text-decoration: none; color: inherit; transition: border-color 0.15s, box-shadow 0.15s; }
+  .quick-card:hover { border-color: var(--accent); box-shadow: var(--shadow-lg); }
+  .quick-icon  { font-size: 1.4rem; flex-shrink: 0; }
+  .quick-label { font-weight: 600; font-size: 0.875rem; }
+  .quick-sub   { font-size: 0.76rem; color: var(--text-muted); margin-top: 1px; }
+
+  .spinner { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.875rem; }
+  .alert-error { background: #FEE2E2; border-left: 4px solid #EF4444; color: #7F1D1D; padding: 11px 14px; border-radius: 8px; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="school-header" id="school-header">
+  <div class="school-header-inner">
+    <div class="school-logo" id="school-logo">📚</div>
+    <div class="school-info">
+      <div class="name" id="school-name">My Portal</div>
+      <div class="sub"  id="class-name">Loading…</div>
+    </div>
+    <div class="student-pill" id="student-pill" title="Switch student">
+      <div class="av" id="student-av">?</div>
+      <div class="nm" id="student-nm">Me</div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="welcome" id="welcome">Welcome back!</div>
+  <div class="welcome-sub" id="welcome-sub">Here's what's waiting for you today.</div>
+
+  <div class="section-label">Your Courses</div>
+  <div id="courses-wrap"><div class="spinner">Loading courses…</div></div>
+
+  <div class="section-label" style="margin-top:0.5rem">Quick Links</div>
+  <div class="quick-links" id="quick-links"></div>
+</div>
+
+<script type="module">
+import { fetchClassCourses, loadContext, clearSession, escHtml } from './js/api.js'
+import { applyTheme } from './js/theme.js'
+
+const ctx = loadContext()
+if (!ctx?.student) {
+  window.location.href = 'index.html'
+}
+
+const { student, cls, teacher, school } = ctx
+
+// Apply branding
+applyTheme(school)
+document.getElementById('school-header').style.background = school.accent_color || '#6366F1'
+document.getElementById('school-logo').textContent  = school.logo_url ? '' : school.name.charAt(0)
+document.getElementById('school-name').textContent  = school.name
+document.getElementById('class-name').textContent   = `${cls.name} · ${teacher.title} ${teacher.name}`
+document.getElementById('welcome').textContent      = `Welcome, ${student.first_name}! 👋`
+document.getElementById('welcome-sub').textContent  = `${cls.name} · ${school.name}${ cls.grade_level ? ' · '+cls.grade_level : ''}`
+
+const initials = (n='?') => n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+document.getElementById('student-av').textContent   = initials(student.display_name)
+document.getElementById('student-nm').textContent   = student.first_name
+document.getElementById('student-av').style.background = 'rgba(255,255,255,0.35)'
+
+// Sign out / switch student
+document.getElementById('student-pill').addEventListener('click', () => {
+  if (confirm(`Sign out as ${student.display_name}?`)) {
+    clearSession()
+    window.location.href = 'index.html'
+  }
+})
+
+// Load courses
+const PORTAL_URL = 'https://andredavisme.github.io/alexandria-training-portal'
+const { data: cc, error } = await fetchClassCourses(cls.id)
+
+if (error || !cc?.length) {
+  document.getElementById('courses-wrap').innerHTML =
+    '<div class="alert-error">Could not load courses. Please try again.</div>'
+} else {
+  const courses = cc.map(r => r.courses).filter(Boolean)
+  document.getElementById('courses-wrap').innerHTML =
+    `<div class="course-grid">${courses.map(c => renderCourse(c)).join('')}</div>`
+}
+
+function renderCourse(c) {
+  const accent = c.accent_color || school.accent_color || '#6366F1'
+  return `
+  <div class="course-card">
+    <div class="course-stripe" style="background:${escHtml(accent)}"></div>
+    <div class="course-body">
+      <div class="course-title">${escHtml(c.title)}</div>
+      <div class="course-desc">${escHtml(c.description || '')}</div>
+      <div class="course-meta">
+        ${c.audience ? `<span>🎒 ${escHtml(c.audience)}</span>` : ''}
+        ${c.duration_months ? `<span>📅 ${c.duration_months} months</span>` : ''}
+      </div>
+    </div>
+    <div class="course-footer">
+      <a class="btn-enter" href="${PORTAL_URL}/course.html?course=${c.id}" style="background:${escHtml(accent)}" target="_blank">Open Course →</a>
+      <a class="btn-link" href="${PORTAL_URL}/discussion.html?course=${c.id}" target="_blank">💬 Discussion Board</a>
+      <a class="btn-link" href="${PORTAL_URL}/commons.html?course=${c.id}" target="_blank">♻️ Classroom Commons</a>
+    </div>
+  </div>`
+}
+
+// Quick links
+document.getElementById('quick-links').innerHTML = [
+  { icon:'💬', label:'All Discussions',    sub:'Ask questions, share ideas',          href: `${PORTAL_URL}/discussion.html` },
+  { icon:'♻️', label:'Classroom Commons',  sub:'Track the class project',              href: `${PORTAL_URL}/commons.html?course=${cc?.[0]?.course_id||''}` },
+  { icon:'📚', label:'Course Catalog',     sub:'Browse all available courses',         href: `${PORTAL_URL}/catalog.html` },
+].map(q => `
+  <a class="quick-card" href="${escHtml(q.href)}" target="_blank">
+    <span class="quick-icon">${q.icon}</span>
+    <div><div class="quick-label">${escHtml(q.label)}</div><div class="quick-sub">${escHtml(q.sub)}</div></div>
+  </a>`).join('')
+</script>
+</body>
+</html>

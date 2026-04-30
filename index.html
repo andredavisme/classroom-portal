@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Classroom Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --accent:    #6366F1;
+    --accent2:   #818CF8;
+    --accent-bg: rgba(99,102,241,0.08);
+    --surface: #ffffff;
+    --bg: #F1F5F9;
+    --border: #E2E8F0;
+    --text: #0F172A;
+    --text-muted: #64748B;
+    --font: 'Inter', sans-serif;
+    --radius: 12px;
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.13);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); color: var(--text); background: var(--bg); min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+  .hidden { display: none !important; }
+
+  /* ---- Branded header ---- */
+  .school-header { background: var(--accent); color: #fff; padding: 0; overflow: hidden; position: relative; }
+  .school-header-inner { max-width: 540px; margin: 0 auto; padding: 2.5rem 1.5rem 2rem; position: relative; z-index: 1; }
+  .school-logo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 0.9rem; }
+  .school-logo { width: 52px; height: 52px; background: rgba(255,255,255,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.5rem; color: #fff; flex-shrink: 0; }
+  .school-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+  .school-name-wrap .school-name { font-weight: 800; font-size: 1.2rem; line-height: 1.2; }
+  .school-name-wrap .school-tagline { font-size: 0.8rem; opacity: 0.82; margin-top: 2px; }
+  .school-class-info { font-size: 0.82rem; opacity: 0.88; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .school-class-info span { display: flex; align-items: center; gap: 4px; }
+  /* decorative arc */
+  .school-header::after { content: ''; position: absolute; bottom: -40px; left: -10%; width: 120%; height: 80px; background: var(--bg); border-radius: 50%; }
+
+  /* ---- Card shell ---- */
+  .page { max-width: 540px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+  .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 2rem 2.25rem; }
+  .card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .card-sub   { font-size: 0.855rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+
+  /* ---- Step 1: class code ---- */
+  .step-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 1rem; }
+  .input-group { display: flex; gap: 0.65rem; }
+  .code-input { flex: 1; padding: 11px 14px; border: 2px solid var(--border); border-radius: 9px; font-family: var(--font); font-size: 1rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); transition: border-color 0.2s; outline: none; text-align: center; }
+  .code-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+  .code-input::placeholder { letter-spacing: 0; font-weight: 400; text-transform: none; opacity: 0.5; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 20px; border-radius: 9px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s; font-family: var(--font); white-space: nowrap; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost  { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); padding: 8px 14px; font-size: 0.82rem; }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-full { width: 100%; margin-top: 0.5rem; }
+
+  .alert { padding: 10px 13px; border-radius: 8px; font-size: 0.84rem; margin-top: 0.75rem; }
+  .alert-error { background: #FEE2E2; border-left: 4px solid #EF4444; color: #7F1D1D; }
+  .alert-info  { background: var(--accent-bg); border-left: 4px solid var(--accent); color: var(--text); }
+
+  /* ---- Step 2: class preview + roster ---- */
+  .class-preview { background: var(--accent-bg); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1.25rem; border-left: 4px solid var(--accent); }
+  .class-preview-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; }
+  .class-preview-meta  { font-size: 0.8rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .roster-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.6rem; }
+  .roster-search { width: 100%; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: var(--font); font-size: 0.875rem; margin-bottom: 0.65rem; outline: none; }
+  .roster-search:focus { border-color: var(--accent); }
+  .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; max-height: 280px; overflow-y: auto; padding-right: 4px; }
+  @media (max-width: 400px) { .roster-grid { grid-template-columns: 1fr; } }
+  .roster-btn { padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: var(--font); font-size: 0.84rem; font-weight: 500; background: var(--surface); cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+  .roster-btn:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+  .roster-btn .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
+  .roster-no-match { font-size: 0.82rem; color: var(--text-muted); padding: 0.5rem; text-align: center; }
+
+  /* ---- Step 3: confirm ---- */
+  .confirm-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 700; margin: 0 auto 1.1rem; }
+  .confirm-name { font-size: 1.3rem; font-weight: 700; text-align: center; margin-bottom: 0.25rem; }
+  .confirm-class { font-size: 0.875rem; color: var(--text-muted); text-align: center; margin-bottom: 1.5rem; }
+  .confirm-actions { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  /* ---- Returning user banner ---- */
+  .returning-banner { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1.1rem 1.4rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.9rem; border: 2px solid var(--accent); }
+  .returning-info { flex: 1; }
+  .returning-name  { font-weight: 700; font-size: 0.95rem; }
+  .returning-class { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* ---- Spinner ---- */
+  .spinner { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem; }
+</style>
+</head>
+<body>
+
+<!-- Branded school header (populated by JS) -->
+<div class="school-header" id="school-header" style="background:#6366F1">
+  <div class="school-header-inner">
+    <div class="school-logo-row">
+      <div class="school-logo" id="school-logo">📚</div>
+      <div class="school-name-wrap">
+        <div class="school-name" id="school-name">Classroom Portal</div>
+        <div class="school-tagline" id="school-tagline">Sign in to get started</div>
+      </div>
+    </div>
+    <div class="school-class-info hidden" id="school-class-info"></div>
+  </div>
+</div>
+
+<div class="page" style="padding-top:2.5rem">
+
+  <!-- Returning user banner -->
+  <div class="returning-banner hidden" id="returning-banner">
+    <div class="confirm-avatar" id="ret-avatar" style="width:44px;height:44px;font-size:1rem;margin:0"></div>
+    <div class="returning-info">
+      <div class="returning-name" id="ret-name"></div>
+      <div class="returning-class" id="ret-class"></div>
+    </div>
+    <button class="btn btn-primary" id="ret-continue" style="flex-shrink:0">Continue →</button>
+  </div>
+
+  <!-- Step 1: Enter class code -->
+  <div class="card" id="step-code">
+    <div class="step-label">Step 1 of 3</div>
+    <div class="card-title">Enter your class code</div>
+    <div class="card-sub">Your teacher gave you a class code. Type it below to find your class and load your school's portal.</div>
+    <div class="input-group">
+      <input class="code-input" id="code-input" type="text" maxlength="20" placeholder="e.g. RIVERA2026" autocomplete="off" spellcheck="false"/>
+      <button class="btn btn-primary" id="btn-lookup">Find Class</button>
+    </div>
+    <div id="code-alert"></div>
+  </div>
+
+  <!-- Step 2: Pick your name from the roster -->
+  <div class="card hidden" id="step-roster">
+    <div class="step-label">Step 2 of 3</div>
+    <div class="card-title">Who are you?</div>
+    <div class="card-sub" id="roster-sub">Find your name in the class list below.</div>
+    <div class="class-preview" id="class-preview"></div>
+    <div class="roster-label">Class Roster</div>
+    <input class="roster-search" id="roster-search" type="text" placeholder="Search your name…" autocomplete="off"/>
+    <div class="roster-grid" id="roster-grid"><div class="spinner">Loading roster…</div></div>
+    <div style="margin-top:0.9rem;">
+      <button class="btn btn-ghost btn-full" id="btn-back-code">← Change class code</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Confirm identity -->
+  <div class="card hidden" id="step-confirm">
+    <div class="step-label">Step 3 of 3</div>
+    <div class="confirm-avatar" id="confirm-avatar"></div>
+    <div class="confirm-name" id="confirm-name"></div>
+    <div class="confirm-class" id="confirm-class"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-primary btn-full" id="btn-confirm" style="padding:13px">Yes, that's me — Enter Portal →</button>
+      <button class="btn btn-ghost btn-full" id="btn-wrong">← Not me, go back</button>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { lookupClassCode, fetchRoster, startSession, loadSession, loadContext, saveContext, clearSession, escHtml } from './js/api.js'
+import { applyTheme } from './js/theme.js'
+
+let classInfo = null   // { teacher, school, cls }
+let roster    = []
+let selected  = null   // student object
+
+// ── Returning user ────────────────────────────────────────────────────
+const existingCtx = loadContext()
+if (existingCtx?.student && existingCtx?.school) {
+  applyTheme(existingCtx.school)
+  applySchoolHeader(existingCtx.school, existingCtx.cls, existingCtx.teacher)
+
+  const banner = document.getElementById('returning-banner')
+  banner.classList.remove('hidden')
+  document.getElementById('ret-avatar').textContent  = initials(existingCtx.student.display_name)
+  document.getElementById('ret-name').textContent    = existingCtx.student.display_name
+  document.getElementById('ret-class').textContent   = `${existingCtx.cls.name} · ${existingCtx.school.name}`
+  document.getElementById('ret-continue').addEventListener('click', () => {
+    window.location.href = `portal.html`
+  })
+}
+
+// ── Step 1: class code lookup ─────────────────────────────────────────
+document.getElementById('code-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-lookup').click()
+})
+
+document.getElementById('btn-lookup').addEventListener('click', async () => {
+  const code = document.getElementById('code-input').value.trim()
+  const alertEl = document.getElementById('code-alert')
+  alertEl.innerHTML = ''
+
+  if (!code) {
+    alertEl.innerHTML = '<div class="alert alert-error">Please enter your class code.</div>'
+    return
+  }
+
+  const btn = document.getElementById('btn-lookup')
+  btn.disabled = true; btn.textContent = 'Looking up…'
+
+  const { data, error } = await lookupClassCode(code)
+  btn.disabled = false; btn.textContent = 'Find Class'
+
+  if (error || !data) {
+    alertEl.innerHTML = '<div class="alert alert-error">Class code not found. Double-check with your teacher.</div>'
+    return
+  }
+
+  classInfo = data
+  applyTheme(data.school)
+  applySchoolHeader(data.school, data.cls, data.teacher)
+  await showRosterStep()
+})
+
+// ── Step 2: roster ────────────────────────────────────────────────────
+async function showRosterStep() {
+  document.getElementById('step-code').classList.add('hidden')
+  const step = document.getElementById('step-roster')
+  step.classList.remove('hidden')
+
+  document.getElementById('roster-sub').textContent =
+    `Find your name in ${escHtml(classInfo.cls.name)} taught by ${escHtml(classInfo.teacher.title)} ${escHtml(classInfo.teacher.name)}.`
+
+  document.getElementById('class-preview').innerHTML = `
+    <div class="class-preview-title">${escHtml(classInfo.cls.name)}</div>
+    <div class="class-preview-meta">
+      <span>🏫 ${escHtml(classInfo.school.name)}</span>
+      ${classInfo.cls.grade_level ? `<span>📚 ${escHtml(classInfo.cls.grade_level)}</span>` : ''}
+      ${classInfo.cls.subject ? `<span>🔬 ${escHtml(classInfo.cls.subject)}</span>` : ''}
+      ${classInfo.cls.period ? `<span>🕐 ${escHtml(classInfo.cls.period)}</span>` : ''}
+    </div>`
+
+  const { data, error } = await fetchRoster(classInfo.cls.id)
+  roster = data || []
+  renderRoster(roster)
+
+  document.getElementById('roster-search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase()
+    renderRoster(roster.filter(s => s.display_name.toLowerCase().includes(q)))
+  })
+}
+
+function renderRoster(students) {
+  const grid = document.getElementById('roster-grid')
+  if (!students.length) {
+    grid.innerHTML = '<div class="roster-no-match">No match found.</div>'
+    return
+  }
+  grid.innerHTML = students.map(s => `
+    <button class="roster-btn" data-id="${escHtml(s.id)}">
+      <div class="avatar">${escHtml(initials(s.display_name))}</div>
+      ${escHtml(s.display_name)}
+    </button>`).join('')
+
+  grid.querySelectorAll('.roster-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selected = roster.find(s => s.id === btn.dataset.id)
+      showConfirmStep()
+    })
+  })
+}
+
+document.getElementById('btn-back-code').addEventListener('click', () => {
+  document.getElementById('step-roster').classList.add('hidden')
+  document.getElementById('step-code').classList.remove('hidden')
+})
+
+// ── Step 3: confirm ───────────────────────────────────────────────────
+function showConfirmStep() {
+  document.getElementById('step-roster').classList.add('hidden')
+  const step = document.getElementById('step-confirm')
+  step.classList.remove('hidden')
+  document.getElementById('confirm-avatar').textContent = initials(selected.display_name)
+  document.getElementById('confirm-avatar').style.background = classInfo.school.accent_color || '#6366F1'
+  document.getElementById('confirm-name').textContent  = selected.display_name
+  document.getElementById('confirm-class').textContent = `${classInfo.cls.name} · ${classInfo.school.name}`
+}
+
+document.getElementById('btn-wrong').addEventListener('click', () => {
+  selected = null
+  document.getElementById('step-confirm').classList.add('hidden')
+  document.getElementById('step-roster').classList.remove('hidden')
+})
+
+document.getElementById('btn-confirm').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-confirm')
+  btn.disabled = true; btn.textContent = 'Signing in…'
+
+  const { error } = await startSession(selected.id, classInfo.cls.id, classInfo.school.id)
+  if (error) { btn.disabled = false; btn.textContent = 'Yes, that\'s me — Enter Portal →'; return }
+
+  saveContext({ student: selected, cls: classInfo.cls, teacher: classInfo.teacher, school: classInfo.school })
+  window.location.href = 'portal.html'
+})
+
+// ── Helpers ───────────────────────────────────────────────────────────
+function initials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()
+}
+
+function applySchoolHeader(school, cls, teacher) {
+  document.getElementById('school-header').style.background = school.accent_color || '#6366F1'
+  document.getElementById('school-name').textContent    = school.name
+  document.getElementById('school-tagline').textContent = school.tagline || ''
+  const logoEl = document.getElementById('school-logo')
+  if (school.logo_url) {
+    logoEl.innerHTML = `<img src="${escHtml(school.logo_url)}" alt="${escHtml(school.name)} logo"/>`
+  } else {
+    logoEl.textContent = school.name.charAt(0).toUpperCase()
+  }
+  if (cls) {
+    const info = document.getElementById('school-class-info')
+    info.classList.remove('hidden')
+    info.innerHTML = [
+      cls.name    ? `<span>📋 ${escHtml(cls.name)}</span>` : '',
+      teacher     ? `<span>👩‍🏫 ${escHtml(teacher.title)} ${escHtml(teacher.name)}</span>` : '',
+      cls.period  ? `<span>🕐 ${escHtml(cls.period)}</span>` : ''
+    ].join('')
+  }
+}
+</script>
+</body>
+</html>
