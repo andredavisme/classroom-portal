@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Teacher Admin — Classroom Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --accent: #6366F1; --accent2: #818CF8; --accent-bg: rgba(99,102,241,0.08);
+    --surface: #ffffff; --bg: #F1F5F9; --border: #E2E8F0;
+    --text: #0F172A; --text-muted: #64748B;
+    --success: #10B981; --danger: #EF4444;
+    --font: 'Inter', sans-serif; --radius: 12px;
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); color: var(--text); background: var(--bg); min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+  .hidden { display: none !important; }
+
+  /* ---- Header ---- */
+  .header { background: var(--accent); color: #fff; position: relative; overflow: hidden; }
+  .header::after { content:''; position:absolute; bottom:-40px; left:-10%; width:120%; height:80px; background:var(--bg); border-radius:50%; }
+  .header-inner { max-width: 960px; margin: 0 auto; padding: 1.4rem 1.5rem 2.25rem; display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1; }
+  .header-logo { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.15rem; color: #fff; flex-shrink: 0; }
+  .header-title { flex: 1; }
+  .header-title .main { font-weight: 800; font-size: 1rem; }
+  .header-title .sub  { font-size: 0.76rem; opacity: 0.82; margin-top: 2px; }
+  .header-badge { background: rgba(255,255,255,0.18); border-radius: 20px; padding: 5px 12px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+
+  /* ---- Login card ---- */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+  .login-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 2.25rem 2.5rem; width: 100%; max-width: 420px; }
+  .login-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .login-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 0.3rem; }
+  .login-sub { font-size: 0.855rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+  label { font-size: 0.8rem; font-weight: 600; }
+  .code-input { padding: 11px 14px; border: 2px solid var(--border); border-radius: 9px; font-family: var(--font); font-size: 1rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); outline: none; text-align: center; width: 100%; transition: border-color 0.2s; }
+  .code-input::placeholder { letter-spacing:0; font-weight:400; text-transform:none; opacity:0.5; }
+  .code-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 20px; border-radius: 9px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s; font-family: var(--font); width: 100%; margin-top: 0.25rem; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-outline { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); width: auto; padding: 7px 14px; font-size: 0.8rem; }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: #FEE2E2; color: #991B1B; border: none; font-size: 0.8rem; padding: 7px 14px; width: auto; }
+  .btn-danger:hover { background: #FECACA; }
+  .alert { padding: 10px 13px; border-radius: 8px; font-size: 0.84rem; margin-top: 0.75rem; }
+  .alert-error { background: #FEE2E2; border-left: 4px solid #EF4444; color: #7F1D1D; }
+  .alert-info  { background: var(--accent-bg); border-left: 4px solid var(--accent); color: #1E3A5F; }
+  .alert-success { background: #D1FAE5; border-left: 4px solid var(--success); color: #064E3B; }
+
+  /* ---- Dashboard ---- */
+  .page { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1.1rem 1.25rem; }
+  .stat-value { font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 0.3rem; }
+  .stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+  .section { margin-bottom: 2.25rem; }
+  .section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .section-title { font-size: 1rem; font-weight: 700; flex: 1; }
+  .section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.85rem; }
+
+  /* Roster table */
+  .roster-table-wrap { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .roster-toolbar { padding: 0.9rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
+  .roster-search { flex: 1; padding: 7px 11px; border: 1.5px solid var(--border); border-radius: 7px; font-family: var(--font); font-size: 0.84rem; outline: none; }
+  .roster-search:focus { border-color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); padding: 0.75rem 1.25rem; text-align: left; border-bottom: 1px solid var(--border); background: #F8FAFC; white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #F8FAFC; }
+  td { padding: 0.75rem 1.25rem; font-size: 0.855rem; vertical-align: middle; }
+  .student-name-cell { display: flex; align-items: center; gap: 0.6rem; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; flex-shrink: 0; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-active  { background: var(--success); }
+  .dot-today   { background: #F59E0B; }
+  .dot-never   { background: var(--border); }
+  .status-text { font-size: 0.77rem; }
+
+  /* Courses */
+  .course-list { display: flex; flex-direction: column; gap: 0.65rem; }
+  .course-row { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow-sm); padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid var(--accent); }
+  .course-row-info { flex: 1; }
+  .course-row-title { font-weight: 600; font-size: 0.94rem; margin-bottom: 0.2rem; }
+  .course-row-meta  { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 0.65rem; flex-wrap: wrap; }
+  .course-row-actions { display: flex; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap; }
+
+  /* Class info card */
+  .info-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1.25rem 1.4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 1.5rem; }
+  @media(max-width:500px) { .info-card { grid-template-columns: 1fr; } }
+  .info-item-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 0.25rem; }
+  .info-item-value { font-size: 0.92rem; font-weight: 600; }
+
+  /* Code badge */
+  .code-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-bg); border: 1.5px solid var(--accent); border-radius: 9px; padding: 8px 14px; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.12em; color: var(--accent); cursor: pointer; transition: background 0.15s; }
+  .code-badge:hover { background: rgba(99,102,241,0.15); }
+  .code-badge .copy-hint { font-size: 0.72rem; font-weight: 500; letter-spacing: 0; color: var(--text-muted); }
+
+  .spinner { text-align: center; padding: 2.5rem; color: var(--text-muted); font-size: 0.875rem; }
+  .empty { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.84rem; }
+</style>
+</head>
+<body>
+
+<!-- Header (hidden until logged in) -->
+<div class="header hidden" id="header">
+  <div class="header-inner">
+    <div class="header-logo" id="hdr-logo">🏫</div>
+    <div class="header-title">
+      <div class="main" id="hdr-school">Classroom Portal</div>
+      <div class="sub"  id="hdr-class">Teacher Dashboard</div>
+    </div>
+    <span class="header-badge">Teacher View</span>
+    <button class="btn-outline" id="btn-signout" style="border-color:rgba(255,255,255,0.4);color:#fff;background:rgba(255,255,255,0.1)">Sign Out</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-view">
+  <div class="login-card">
+    <div class="login-icon">👩‍🏫</div>
+    <div class="login-title">Teacher Sign In</div>
+    <div class="login-sub">Enter your class code to access your teacher dashboard. This is the same code you share with students.</div>
+    <div class="form-group">
+      <label>Your Class Code</label>
+      <input class="code-input" id="login-code" type="text" maxlength="20" placeholder="e.g. RIVERA2026" autocomplete="off" spellcheck="false"/>
+    </div>
+    <button class="btn btn-primary" id="btn-login">Enter Dashboard</button>
+    <div id="login-alert"></div>
+    <div style="margin-top:1.25rem;text-align:center;font-size:0.78rem;color:var(--text-muted)">
+      Student? <a href="index.html">Sign in here →</a>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD (hidden until logged in) -->
+<div id="dashboard-view" class="hidden">
+  <div class="page">
+
+    <!-- Stats row -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="stat-value" id="stat-students">-</div><div class="stat-label">Students on Roster</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-sessions">-</div><div class="stat-label">Total Sign-ins</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-today">-</div><div class="stat-label">Active Today</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-courses">-</div><div class="stat-label">Courses Assigned</div></div>
+    </div>
+
+    <!-- Class Info -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🏫 Class Information</div>
+      </div>
+      <div class="info-card" id="info-card"></div>
+    </div>
+
+    <!-- Roster -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">👥 Class Roster</div>
+        <div id="toast" class="hidden" style="font-size:0.78rem;color:var(--success)">Copied!</div>
+      </div>
+      <div class="roster-table-wrap">
+        <div class="roster-toolbar">
+          <input class="roster-search" id="roster-search" type="text" placeholder="Search students…"/>
+          <span style="font-size:0.78rem;color:var(--text-muted)" id="roster-count"></span>
+        </div>
+        <div id="roster-wrap"><div class="spinner">Loading roster…</div></div>
+      </div>
+    </div>
+
+    <!-- Assigned Courses -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📚 Assigned Courses</div>
+        <a id="catalog-link" href="https://andredavisme.github.io/alexandria-training-portal/catalog.html" target="_blank" class="btn-outline btn" style="width:auto;margin-top:0">Browse Catalog ↗</a>
+      </div>
+      <div id="courses-wrap"><div class="spinner">Loading…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { lookupClassCode, fetchRoster, fetchClassCourses, clearSession, escHtml } from './js/api.js'
+import { applyTheme } from './js/theme.js'
+
+const SUPABASE_URL = 'https://hhyhulqngdkwsxhymmcd.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoeWh1bHFuZ2Rrd3N4aHltbWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMzEyMDEsImV4cCI6MjA5MjcwNzIwMX0.dmSy7Q8Je5lEY4XCFzwvfPnkBYLebPE0yZMhy6Y8czI'
+const hdrs = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+
+const PORTAL = 'https://andredavisme.github.io/alexandria-training-portal'
+const initials = n => (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+
+let teacherCtx = null
+let allStudents = []
+
+// ── Check localStorage for existing teacher session ─────────────────────
+try {
+  const raw = localStorage.getItem('cp_teacher')
+  if (raw) {
+    const saved = JSON.parse(raw)
+    if (Date.now() - saved.ts < 8 * 60 * 60 * 1000) {
+      teacherCtx = saved.ctx
+      bootDashboard()
+    } else {
+      localStorage.removeItem('cp_teacher')
+    }
+  }
+} catch {}
+
+// ── Login ───────────────────────────────────────────────────────────────
+const loginCode = document.getElementById('login-code')
+loginCode.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-login').click() })
+
+document.getElementById('btn-login').addEventListener('click', async () => {
+  const code = loginCode.value.trim()
+  const alertEl = document.getElementById('login-alert')
+  alertEl.innerHTML = ''
+  if (!code) { alertEl.innerHTML = '<div class="alert alert-error">Please enter your class code.</div>'; return }
+
+  const btn = document.getElementById('btn-login')
+  btn.disabled = true; btn.textContent = 'Looking up…'
+
+  const { data, error } = await lookupClassCode(code)
+  btn.disabled = false; btn.textContent = 'Enter Dashboard'
+
+  if (error || !data) {
+    alertEl.innerHTML = '<div class="alert alert-error">Class code not found. Please try again.</div>'
+    return
+  }
+
+  teacherCtx = data
+  localStorage.setItem('cp_teacher', JSON.stringify({ ctx: data, ts: Date.now() }))
+  bootDashboard()
+})
+
+document.getElementById('btn-signout').addEventListener('click', () => {
+  localStorage.removeItem('cp_teacher')
+  location.reload()
+})
+
+// ── Boot dashboard ────────────────────────────────────────────────────────
+async function bootDashboard() {
+  const { teacher, school, cls } = teacherCtx
+
+  applyTheme(school)
+
+  // Show header, hide login
+  document.getElementById('login-view').classList.add('hidden')
+  document.getElementById('dashboard-view').classList.remove('hidden')
+  const hdr = document.getElementById('header')
+  hdr.classList.remove('hidden')
+  hdr.style.background = school.accent_color || '#6366F1'
+  document.getElementById('hdr-logo').textContent  = school.name.charAt(0)
+  document.getElementById('hdr-school').textContent = school.name
+  document.getElementById('hdr-class').textContent  = `${teacher.title} ${teacher.name} · ${cls.name}`
+
+  // Class info card
+  document.getElementById('info-card').innerHTML = [
+    { label: 'School',        value: school.name },
+    { label: 'Class',         value: cls.name },
+    { label: 'Teacher',       value: `${teacher.title} ${teacher.name}` },
+    { label: 'Grade',         value: cls.grade_level || '—' },
+    { label: 'Subject',       value: cls.subject || '—' },
+    { label: 'Period',        value: cls.period || '—' },
+    { label: 'Academic Year', value: cls.academic_year || '—' },
+    {
+      label: 'Student Class Code',
+      value: `<div class="code-badge" id="code-copy-btn" title="Click to copy">
+        ${escHtml(teacher.class_code)}
+        <span class="copy-hint">click to copy</span>
+      </div>`
+    }
+  ].map(i => `<div><div class="info-item-label">${i.label}</div><div class="info-item-value">${i.value}</div></div>`).join('')
+
+  document.getElementById('code-copy-btn')?.addEventListener('click', () => {
+    navigator.clipboard.writeText(teacher.class_code).then(() => {
+      const t = document.getElementById('toast')
+      t.classList.remove('hidden')
+      setTimeout(() => t.classList.add('hidden'), 1800)
+    })
+  })
+
+  // Load data in parallel
+  const [rosterRes, coursesRes, sessionsRes] = await Promise.all([
+    fetchRoster(cls.id),
+    fetchClassCourses(cls.id),
+    fetchSessions(cls.id)
+  ])
+
+  allStudents = rosterRes.data || []
+  const courses  = (coursesRes.data  || []).map(r => r.courses).filter(Boolean)
+  const sessions = sessionsRes || []
+
+  // Stats
+  const today = new Date().toISOString().slice(0,10)
+  const activeToday = sessions.filter(s => s.last_seen?.startsWith(today)).length
+  document.getElementById('stat-students').textContent = allStudents.length
+  document.getElementById('stat-sessions').textContent = sessions.length
+  document.getElementById('stat-today').textContent    = activeToday
+  document.getElementById('stat-courses').textContent  = courses.length
+
+  // Roster
+  renderRoster(allStudents, sessions)
+  document.getElementById('roster-search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase()
+    renderRoster(allStudents.filter(s => s.display_name.toLowerCase().includes(q)), sessions)
+  })
+
+  // Courses
+  renderCourses(courses, cls)
+}
+
+// ── Sessions fetch ────────────────────────────────────────────────────────
+async function fetchSessions(classId) {
+  const p = new URLSearchParams({
+    class_id: `eq.${classId}`,
+    select: 'student_id,last_seen,created_at',
+    order: 'last_seen.desc'
+  })
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/student_sessions?${p}`, { headers: hdrs })
+  return r.ok ? r.json() : []
+}
+
+// ── Render roster ─────────────────────────────────────────────────────────
+function renderRoster(students, sessions) {
+  document.getElementById('roster-count').textContent = `${students.length} student${students.length!==1?'s':''}`
+  if (!students.length) {
+    document.getElementById('roster-wrap').innerHTML = '<div class="empty">No students found.</div>'
+    return
+  }
+
+  const today  = new Date().toISOString().slice(0,10)
+  const sessionMap = {}
+  sessions.forEach(s => {
+    if (!sessionMap[s.student_id]) sessionMap[s.student_id] = s
+  })
+
+  document.getElementById('roster-wrap').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Student</th>
+        <th>Last Sign-in</th>
+        <th>Status</th>
+        <th>Total Sessions</th>
+      </tr></thead>
+      <tbody>
+        ${students.map(s => {
+          const sess = sessionMap[s.id]
+          const lastSeen = sess?.last_seen
+          const isToday  = lastSeen?.startsWith(today)
+          const dotClass = !lastSeen ? 'dot-never' : isToday ? 'dot-active' : 'dot-today'
+          const statusTxt = !lastSeen ? 'Never signed in' : isToday ? 'Active today' : `Last: ${fmtDate(lastSeen)}`
+          const totalSessions = sessions.filter(ss => ss.student_id === s.id).length
+          return `<tr>
+            <td><div class="student-name-cell"><div class="avatar">${initials(s.display_name)}</div>${escHtml(s.display_name)}</div></td>
+            <td style="font-size:0.8rem;color:var(--text-muted)">${lastSeen ? fmtDate(lastSeen) : '—'}</td>
+            <td><span class="status-dot ${dotClass}"></span> <span class="status-text">${statusTxt}</span></td>
+            <td style="font-size:0.82rem;color:var(--text-muted)">${totalSessions || 0}</td>
+          </tr>`
+        }).join('')}
+      </tbody>
+    </table>`
+}
+
+// ── Render courses ─────────────────────────────────────────────────────────
+function renderCourses(courses, cls) {
+  if (!courses.length) {
+    document.getElementById('courses-wrap').innerHTML =
+      `<div class="empty">No courses assigned yet. <a href="${PORTAL}/catalog.html" target="_blank">Browse the catalog ↗</a></div>`
+    return
+  }
+  document.getElementById('courses-wrap').innerHTML =
+    `<div class="course-list">${courses.map(c => {
+      const accent = c.accent_color || '#6366F1'
+      return `<div class="course-row" style="border-left-color:${escHtml(accent)}">
+        <div class="course-row-info">
+          <div class="course-row-title">${escHtml(c.title)}</div>
+          <div class="course-row-meta">
+            ${c.audience ? `<span>🎒 ${escHtml(c.audience)}</span>` : ''}
+            ${c.duration_months ? `<span>📅 ${c.duration_months} months</span>` : ''}
+            ${c.status ? `<span style="text-transform:capitalize">● ${escHtml(c.status)}</span>` : ''}
+          </div>
+        </div>
+        <div class="course-row-actions">
+          <a href="${PORTAL}/course.html?course=${c.id}" target="_blank" class="btn-outline btn" style="width:auto;margin-top:0;font-size:0.78rem">View Course ↗</a>
+          <a href="${PORTAL}/discussion.html?course=${c.id}" target="_blank" class="btn-outline btn" style="width:auto;margin-top:0;font-size:0.78rem">💬 Discussions</a>
+        </div>
+      </div>`
+    }).join('')}</div>`
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
+}
+</script>
+</body>
+</html>
